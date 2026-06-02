@@ -51,7 +51,7 @@ export const api = {
         });
         const data = await response.json();
         if (!response.ok) return { ok: false, error: data.error };
-        return { ok: True, id: data.id };
+        return { ok: true, id: data.id };
       } catch (err) {
         return { ok: false, error: "Failed to connect to backend." };
       }

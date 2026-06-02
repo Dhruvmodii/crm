@@ -1,7 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { PageHeader } from "../../components/erp/PageHeader";
 import { SectionCard } from "../../components/erp/SectionCard";
-import { useToast } from "../../layout/ToastProvider";
 import { useAuth } from "../../auth/AuthContext";
 import { api } from "../../services/api";
 import {
@@ -22,7 +21,6 @@ import {
 
 export function BranchManagerDashboard() {
   const { session } = useAuth();
-  const { pushToast } = useToast();
 
   const [appointments, setAppointments] = useState<AppointmentRecord[]>(() =>
     listAppointments(),

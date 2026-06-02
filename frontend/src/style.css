@@ -21,8 +21,8 @@ body {
 }
 
 .app-shell {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: auto 1fr;
   min-height: 100vh;
   max-width: 100vw;
   overflow-x: hidden;
@@ -30,7 +30,9 @@ body {
 
 /* Sidebar Placeholder Offset for Fixed Sidebar Layout */
 .app-shell-sidebar-spacer {
-  display: none;
+  height: 100vh;
+  transition: width 150ms ease;
+  flex-shrink: 0;
 }
 
 /* Sidebar White & Blue Theme */

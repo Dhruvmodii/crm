@@ -646,8 +646,8 @@ export function CrmLeadsPage() {
         clinicName: generateQr ? clinicName : "",
         appointmentDate: generateQr ? appointmentDate : "",
         appointmentSlot: generateQr ? appointmentSlot : "",
-        qrToken: newLead.qrToken,
-        qrPayload: newLead.qrPayload,
+        qrToken: newLead.qrToken || null,
+        qrPayload: newLead.qrPayload || null,
         createdAt: newLead.createdAt
       });
     } catch (err) {

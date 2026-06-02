@@ -1,4 +1,4 @@
-import { type FormEvent, useState, useMemo, useEffect } from "react";
+import { type FormEvent, useState } from "react";
 import { findEntryByQrToken, type TelecallerEntry } from "../../data/telecallerStore";
 import {
   createAppointment,
@@ -57,111 +57,6 @@ export function ReceptionCheckInPage() {
   const [trialsCount, setTrialsCount] = useState(0);
   const [pendingFollowUps, setPendingFollowUps] = useState(0);
   const [eodMessage, setEodMessage] = useState("");
-
-  const [appointments, setAppointments] = useState<AppointmentRecord[]>(() =>
-    listAppointments(),
-  );
-
-  // Load appointments from database on mount if available
-  useEffect(() => {
-    async function loadDbAppointments() {
-      try {
-        const data = await api.appointments.list();
-        setAppointments(data);
-      } catch (err) {
-        console.log("[Reception] Backend offline, using local appointments.");
-      }
-    }
-    loadDbAppointments();
-  }, []);
-
-  const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), []);
-  const activeClinic = session?.clinicName ?? "Pilot Branch";
-
-  const todayAppointments = useMemo(() => {
-    return appointments.filter(
-      (record) =>
-        record.date === todayStr &&
-        record.clinicName.toLowerCase() === activeClinic.toLowerCase(),
-    );
-  }, [appointments, todayStr, activeClinic]);
-
-  const upcomingAppointments = useMemo(() => {
-    return appointments
-      .filter(
-        (record) =>
-          record.date > todayStr &&
-          record.clinicName.toLowerCase() === activeClinic.toLowerCase(),
-      )
-      .sort((a, b) => a.date.localeCompare(b.date) || a.slot.localeCompare(b.slot));
-  }, [appointments, todayStr, activeClinic]);
-
-  function handleSelectAppointment(record: AppointmentRecord) {
-    setPatient(record.patientName);
-    setFullName(record.patientName);
-    setMobile(record.mobileNumber);
-    setArrivalType("appointment");
-    setReferenceSource(record.source === "telecaller" ? "Telecaller" : "Self Booking");
-    setVisitReason("");
-    setMobileVerified(true);
-    setScanToken(record.id);
-    pushToast(`Patient ${record.patientName}'s details loaded into the Check-In form.`, "info");
-
-    const formElement = document.getElementById("check-in-form");
-    if (formElement) {
-      formElement.scrollIntoView({ behavior: "smooth" });
-    }
-  }
-
-  async function quickCheckIn(record: AppointmentRecord) {
-    if (!openingReady) {
-      pushToast("Please complete opening controls before checking in patients.", "error");
-      return;
-    }
-
-    try {
-      await api.appointments.updateStatus(record.id, "arrived");
-      await api.queue.add({
-        patientName: record.patientName,
-        clinicName: record.clinicName,
-        status: "waiting",
-        mobileNumber: record.mobileNumber,
-        arrivalType: "appointment",
-      });
-      const data = await api.appointments.list();
-      setAppointments(data);
-    } catch (err) {
-      console.log("Database offline, checking in locally.");
-      // Update appointment status to arrived
-      const updated = updateAppointmentStatus(record.id, "arrived");
-      setAppointments(updated);
-
-      // Add to arrivals queue
-      addQueueEntry({
-        patientName: record.patientName,
-        clinicName: record.clinicName,
-        status: "waiting",
-        mobileNumber: record.mobileNumber,
-        arrivalType: "appointment",
-      });
-    }
-
-    // Add to local state queue
-    const token = `T-${String(entries.length + 1).padStart(3, "0")}`;
-    const waitingSince = new Date().toLocaleTimeString();
-    setEntries((prev) => [
-      ...prev,
-      {
-        token,
-        patient: record.patientName,
-        mobile: record.mobileNumber,
-        arrivalType: "appointment",
-        waitingSince,
-      },
-    ]);
-
-    pushToast(`${record.patientName} marked as arrived and added to queue.`, "success");
-  }
 
   const todaySummary = readReceptionDaySummary();
 
@@ -249,8 +144,6 @@ export function ReceptionCheckInPage() {
         }
       }
       
-      const appts = await api.appointments.list();
-      setAppointments(appts);
     } catch (err) {
       console.log("Database offline, checking in locally.");
       addQueueEntry({
@@ -262,9 +155,9 @@ export function ReceptionCheckInPage() {
       });
 
       if (arrivalType === "appointment") {
-        const allAppts = listAppointments();
+        const allAppts: AppointmentRecord[] = listAppointments();
         const matched = allAppts.find(
-          (a) =>
+          (a: AppointmentRecord) =>
             a.status !== "arrived" &&
             a.status !== "completed" &&
             (a.mobileNumber === mobile.trim() ||
@@ -275,7 +168,6 @@ export function ReceptionCheckInPage() {
           updateAppointmentStatus(matched.id, "arrived");
         }
       }
-      setAppointments(listAppointments());
     }
 
     const token = `T-${String(entries.length + 1).padStart(3, "0")}`;

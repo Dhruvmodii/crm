@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect, type FormEvent } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { PageHeader } from "../../components/erp/PageHeader";
 import { SectionCard } from "../../components/erp/SectionCard";
 import { DataTable } from "../../components/erp/DataTable";
@@ -14,12 +15,7 @@ import {
   User,
   Calendar,
   CheckCircle,
-  Search,
-  X,
-  Building,
   Clock,
-  Download,
-  Share2,
   ArrowRight,
 } from "lucide-react";
 
@@ -197,8 +193,8 @@ export function TelecallerDashboard() {
   });
 
   // Search & Filter state
-  const [searchQuery, setSearchQuery] = useState("");
-  const [branchFilter, setBranchFilter] = useState<string>("all");
+  const searchQuery = "";
+  const branchFilter = "all";
 
   // Selected patient for right-side drawer
   const [selectedLead, setSelectedLead] = useState<IntelligentLead | null>(null);
@@ -212,10 +208,6 @@ export function TelecallerDashboard() {
   const [apptBranch, setApptBranch] = useState(CLINIC_OPTIONS[0]);
   const [apptDate, setApptDate] = useState("");
   const [apptSlot, setApptSlot] = useState<AppointmentSlot>("10:00 AM");
-
-  // Local QR state generated within drawer
-  const [drawerQrPayload, setDrawerQrPayload] = useState<string | null>(null);
-  const [drawerQrToken, setDrawerQrToken] = useState<string | null>(null);
 
   // Keep state updated in localStorage
   useEffect(() => {
@@ -431,11 +423,6 @@ export function TelecallerDashboard() {
       setApptBranch(selectedLead.assignedBranch || CLINIC_OPTIONS[0]);
       setApptDate(selectedLead.nextFollowUpDate || "");
       setApptSlot((selectedLead.nextFollowUpTime as AppointmentSlot) || "10:00 AM");
-      setDrawerQrPayload(selectedLead.qrPayload || null);
-      setDrawerQrToken(selectedLead.qrToken || null);
-    } else {
-      setDrawerQrPayload(null);
-      setDrawerQrToken(null);
     }
   }, [selectedLead]);
 

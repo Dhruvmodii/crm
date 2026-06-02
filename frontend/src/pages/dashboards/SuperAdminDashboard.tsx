@@ -1,8 +1,7 @@
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { PageHeader } from "../../components/erp/PageHeader";
 import { SectionCard } from "../../components/erp/SectionCard";
 import { DataTable } from "../../components/erp/DataTable";
-import { useAuth } from "../../auth/AuthContext";
 import { api } from "../../services/api";
 import {
   listAppointments,
@@ -28,8 +27,6 @@ import {
 const CLINIC_OPTIONS = ["Delhi Gate", "Noida", "Laxmi Nagar", "Ghaziabad"];
 
 export function SuperAdminDashboard() {
-  const { session } = useAuth();
-
   const [appointments, setAppointments] = useState<AppointmentRecord[]>(() =>
     listAppointments(),
   );
